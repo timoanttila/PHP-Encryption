@@ -1,14 +1,17 @@
 <?php
 class Secret {
 	private $ciphering = "AES-128-CTR";
+	private $crypt;
 	private $option = 0;
 
 	function encrypt($item){
-		return openssl_encrypt($item, $this->ciphering, $this->getKey()->Key, $this->option, $this->getRandom());
+		if(!isset($this->crypt)) getRandom();
+		return openssl_encrypt($item, $this->ciphering, $this->getKey()->Key, $this->option, $this->crypt);
 	}
 
 	function decrypt($item){
-		return openssl_decrypt($item, $this->ciphering, $this->getKey()->Key, $this->option, $this->getRandom());
+		if(!isset($this->crypt)) getRandom();
+		return openssl_decrypt($item, $this->ciphering, $this->getKey()->Key, $this->option, $this->crypt);
 	}
 
 	function getKey(){
@@ -16,7 +19,10 @@ class Secret {
 	}
 
 	function getRandom(){
-		return random_bytes(openssl_cipher_iv_length($this->ciphering));
+		return $this->crypt = bin2hex(openssl_random_pseudo_bytes(8));
+	}
+	function addKey($item){
+		$this->crypt = $item;
 	}
 }
 
